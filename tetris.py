@@ -16,7 +16,7 @@ class mainDisplay():
         self.blockSize = (self.rect.right - self.rect.left)//10
         self.currentTime = 0
         self.floorTime = 0
-        self.isFloor =False
+        self.isFloor = False
 
     def makeCurrentBlock(self):
         if not self.currentBlock:
@@ -33,6 +33,8 @@ class mainDisplay():
             toLeft = False
         if toUp:
             self.currentBlock.rotateRight()
+            self.floorTime = 0
+            self.isFloor = False
             toUp = False
 
     def blockDown(self, dt):
@@ -45,11 +47,19 @@ class mainDisplay():
             self.floorTime = 0
             self.isFloor = False
             self.currentBlock.setMap()
-            self.currentBlock = tetromino(self,"I")
-                
+            self.currentBlock = tetromino(self, "I")
+
+    def drawMap(self):
+        for y, i in enumerate(self.map):
+            for x, type in enumerate(i):
+                if type == ".":
+                    continue
+                screen.blit(
+                    blockImage[0], (self.rect.left+x*self.blockSize, self.rect.top+y*self.blockSize))
 
     def draw(self):
         screen.blit(self.background, self.rect)
+        self.drawMap()
         self.currentBlock.draw()
 
 
@@ -66,64 +76,75 @@ class tetromino():
         self.type = type
         self.blockList = BLOCK_LIST[type]
         self.rotateValue = ROTATE_VALUE[type]
-        self.srcMap = []
+        self.map = []
         for i in range(20):
-            self.srcMap.append(list(".........."))
-        self.mapClear()
+            self.map.append(list(".........."))
         self.toX = 0
         self.toY = 0
+        self.clearMap()
 
-    def mapClear(self):
-        self.map = self.srcMap
+    def clearMap(self):
+        self.map.clear()
+        for i in range(20):
+            self.map.append(list(".........."))
 
     def moveRight(self):
-        for i in self.blockList:
-            self.map[i[1]+self.toY][i[0]+self.toX] = "."
-            if i[0]+self.toX == MAP_WIDTH-1:
-                self.toX -= 1
-                break
         self.toX += 1
-        for i in self.blockList:
-            self.map[i[1]+self.toY][i[0]+self.toX] = self.type
 
     def moveLeft(self):
-        for i in self.blockList:
-            self.map[i[1]+self.toY][i[0]+self.toX] = "."
-            if i[0]+self.toX == 0:
-                self.toX += 1
-                break
         self.toX -= 1
-        for i in self.blockList:
-            self.map[i[1]+self.toY][i[0]+self.toX] = self.type
 
     def rotateRight(self):
+        mainMap = self.container.map
         temp = [(i[0]-self.rotateValue[0], i[1]-self.rotateValue[1])
                 for i in self.blockList]
         temp = [(-i[1], i[0]) for i in temp]
         temp = [(int(i[0]+self.rotateValue[1]), int(i[1]+self.rotateValue[0]))
                 for i in temp]
-        print(temp)
         self.blockList = temp
+        self.availabilityCheck()
 
     def makeBlock(self):
         for i in self.blockList:
             self.map[i[1]+self.toY][i[0]+self.toX] = self.type
 
     def down(self):
+        mainMap = self.container.map
         for i in self.blockList:
             if i[1]+self.toY == MAP_HEIGHT-1:
                 return True
-        for i in self.blockList:
-            self.map[i[1]+self.toY][i[0]+self.toX] = "."
+            elif mainMap[i[1]+self.toY+1][i[0]+self.toX] != ".":
+                return True
         self.toY += 1
+
+    def wallCollision(self):
         for i in self.blockList:
-            self.map[i[1]+self.toY][i[0]+self.toX] = self.type
-            
+            if i[0] + self.toX < 0:
+                self.toX += -(i[0] + self.toX)
+            elif i[0] + self.toX > MAP_WIDTH - 1:
+                self.toX -= (i[0] + self.toX) - (MAP_WIDTH - 1)
+            if i[1] + self.toY > MAP_HEIGHT - 1:
+                self.toY -= (i[1] + self.toY) - (MAP_HEIGHT - 1)
+
+    def availabilityCheck(self):
+        for i in self.blockList:
+            if i[0] + self.toX < 0:
+                self.toX += -(i[0] + self.toX)
+            elif i[0] + self.toX > MAP_WIDTH - 1:
+                self.toX -= (i[0] + self.toX) - (MAP_WIDTH - 1)
+            if i[1] + self.toY > MAP_HEIGHT - 1:
+                self.toY -= (i[1] + self.toY) - (MAP_HEIGHT - 1)
+
     def setMap(self):
+        mainMap = self.container.map
         for i in self.blockList:
-            self.container.map[i[1]+self.toY][i[0]+self.toX] = self.type
+            mainMap[i[1]+self.toY][i[0]+self.toX] = self.type
 
     def draw(self):
+        self.clearMap()
+        self.availabilityCheck()
+        for i in self.blockList:
+            self.map[i[1]+self.toY][i[0]+self.toX] = self.type
         for y, i in enumerate(self.map):
             for x, type in enumerate(i):
                 if type == ".":
@@ -148,7 +169,7 @@ clock = pygame.time.Clock()
 
 #1. 사용자 게임 초기화
 BLOCK_TICK = 200
-MAX_FLOOR_TICK = 200
+MAX_FLOOR_TICK = 500
 MAP_WIDTH = 10
 MAP_HEIGHT = 20
 BLOCK_LIST = {
