@@ -124,9 +124,9 @@ class Controller:  # 앱 컨트롤
           self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
       pygame.display.update()
 
-  # !!HOT!!: 업데이트 필요
   def scoreBoard(self):
     score_list = self.mainMap.get_score()
+    score_list["user"] = HEADER["username"]
     board = Menu.ScoreBoard(SCREEN_SIZE, score_list)
     blur = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
     blur.fill(pygame.Color(0, 0, 0, 60))

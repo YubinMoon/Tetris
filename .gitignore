@@ -1,6 +1,6 @@
 __pycache__/
 build/
-test*
+test.py
 dist/
 *.spec
 todo
