@@ -15,8 +15,8 @@ from tetris.game import Container
 from pygame.constants import *
 
 
-
 # 점수 설정
+
 # def saveScore(score: dict):
 #   global totalScore
 #   now = datetime.now()
