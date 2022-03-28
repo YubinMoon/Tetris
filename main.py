@@ -139,35 +139,35 @@ class Controller:  # 앱 컨트롤
           self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
       pygame.display.update()
 
-  # !!HOT!!: 업데이트 필요
-  def scoreBoard(self):
-    board = ScoreBoard(SCREEN_SIZE, self.mainMap.score)
-    threading.Thread(target=savingScore).start()
-    while True:
-      self.dt = clock.tick(FPS)
-      eventHandler()
-      if key[pygame.K_ESCAPE]:
-        key[pygame.K_ESCAPE] = False
-        menu()
-      for i in board.eventHandling(key):
-        if i == "MAINMENU":
-          menu()
-        elif i == "RESTART":
-          playGame()
-      mainMap_rect = mainMap.get_rect(
-          center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
-      board.draw()
-      a = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
-      a.fill(pygame.Color(0, 0, 0, 60))
-      self.WINDOW.blit(background, (0, 0))
-      self.WINDOW.blit(mainMap, (mainMap_rect.x, mainMap_rect.y))
-      self.WINDOW.blit(pygame.transform.smoothscale(
-          pygame.transform.smoothscale(self.WINDOW, (160, 90)), SCREEN_SIZE), (0, 0))
-      self.WINDOW.blit(a, (0, 0))
-      self.WINDOW.blit(board, (0, 0))
-      SCREEN.blit(pygame.transform.scale(
-          self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
-      pygame.display.update()
+  # # !!HOT!!: 업데이트 필요
+  # def scoreBoard(self):
+  #   board = ScoreBoard(SCREEN_SIZE, self.mainMap.score)
+  #   threading.Thread(target=savingScore).start()
+  #   while True:
+  #     self.dt = clock.tick(FPS)
+  #     eventHandler()
+  #     if key[pygame.K_ESCAPE]:
+  #       key[pygame.K_ESCAPE] = False
+  #       menu()
+  #     for i in board.eventHandling(key):
+  #       if i == "MAINMENU":
+  #         menu()
+  #       elif i == "RESTART":
+  #         playGame()
+  #     mainMap_rect = mainMap.get_rect(
+  #         center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
+  #     board.draw()
+  #     a = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
+  #     a.fill(pygame.Color(0, 0, 0, 60))
+  #     self.WINDOW.blit(background, (0, 0))
+  #     self.WINDOW.blit(mainMap, (mainMap_rect.x, mainMap_rect.y))
+  #     self.WINDOW.blit(pygame.transform.smoothscale(
+  #         pygame.transform.smoothscale(self.WINDOW, (160, 90)), SCREEN_SIZE), (0, 0))
+  #     self.WINDOW.blit(a, (0, 0))
+  #     self.WINDOW.blit(board, (0, 0))
+  #     SCREEN.blit(pygame.transform.scale(
+  #         self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
+  #     pygame.display.update()
 
   # def scoreHistory():
   #   page = ScoreHistory(SCREEN_SIZE, totalScore)
