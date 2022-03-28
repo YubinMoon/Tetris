@@ -17,6 +17,9 @@ from pygame.constants import *
 
 
 # 점수 설정
+
+# testtest
+
 # def saveScore(score: dict):
 #   global totalScore
 #   now = datetime.now()
