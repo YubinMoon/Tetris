@@ -1,6 +1,6 @@
 __pycache__/
 build/
+test*
 dist/
-tetris.spec
+*.spec
 todo
-test.py
