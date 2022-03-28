@@ -4,6 +4,7 @@ import time
 import random
 import numpy as np
 import pygame
+import datetime
 import tetris.constants as Constants
 
 
@@ -114,8 +115,20 @@ class Container(pygame.Surface):  # 메인 컨테이너
   #   }
   #   return status
 
-  def get_score(self):
-    return self.ground.score
+  def get_score(self): # 점수 반환
+    now = datetime.datetime.now()
+    score_lists = {
+      "year": now.year,
+      "month": now.month,
+      "day": now.day,
+      "hour": now.hour,
+      "minute": now.minute,
+      "second": now.second,
+      "score": self.ground.score,
+      "speed": self.ground.speed,
+      "ereaseBlock": self.ground.ereaseBlock
+    }
+    return score_lists
 
   def get_speed(self):
     return self.ground.speed
@@ -154,8 +167,8 @@ class Container(pygame.Surface):  # 메인 컨테이너
   def set_draw(self):  # 그리기
     self.state_list.clear()
     self.state_list.append("FPS: %d" % np.mean(self.FPS))
-    self.state_list.append("SCORE: %d" % (self.get_score()))
-    self.state_list.append("SPEED: %d" % (self.get_speed()))
+    self.state_list.append("SCORE: %d" % (self.ground.score))
+    self.state_list.append("SPEED: %d" % (self.ground.speed))
 
     self.ground.draw()
     self.keepBox.draw()

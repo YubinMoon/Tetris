@@ -1,3 +1,4 @@
+from ast import Constant
 import os
 import sys
 import time
@@ -10,27 +11,8 @@ import tetris.menu as Menu
 
 from pygame._sdl2.video import Window
 import pygame
-from datetime import datetime
 from tetris.game import Container
 from pygame.constants import *
-
-
-# 점수 설정
-# def saveScore(score: dict):
-#   global totalScore
-#   now = datetime.now()
-#   temp = {
-#       "year": now.year,
-#       "month": now.month,
-#       "day": now.day,
-#       "hour": now.hour,
-#       "minute": now.minute,
-#       "second": now.second,
-#       "score": score["score"],
-#       "speed": score["speed"],
-#       "ereaseBlock": score["ereaseBlock"]
-#   }
-#   totalScore.append(temp)
 
 
 def eventSet():  # 키 맵핑
@@ -109,7 +91,11 @@ class Controller:  # 앱 컨트롤
         pygame.mixer.unpause()
       if self.mainMap.update(self.dt, key) == Constants.GAMEOVER:  # 프레임 업데이트
         self.music_off()
-        #event = self.scoreBoard()# HOT: 스코어보드
+        event = self.scoreBoard()
+        if event == Constants.MAINMENU:
+          return
+        elif event == Constants.RESTART:
+          return self.playGame()
         return
       self.draw_and_update(
           self.mainMap, (self.mainMap_rect.x, self.mainMap_rect.y))
@@ -138,35 +124,32 @@ class Controller:  # 앱 컨트롤
           self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
       pygame.display.update()
 
-  # # !!HOT!!: 업데이트 필요
-  # def scoreBoard(self):
-  #   board = ScoreBoard(SCREEN_SIZE, self.mainMap.score)
-  #   threading.Thread(target=savingScore).start()
-  #   while True:
-  #     self.dt = clock.tick(FPS)
-  #     eventHandler()
-  #     if key[pygame.K_ESCAPE]:
-  #       key[pygame.K_ESCAPE] = False
-  #       menu()
-  #     for i in board.eventHandling(key):
-  #       if i == "MAINMENU":
-  #         menu()
-  #       elif i == "RESTART":
-  #         playGame()
-  #     mainMap_rect = mainMap.get_rect(
-  #         center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
-  #     board.draw()
-  #     a = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
-  #     a.fill(pygame.Color(0, 0, 0, 60))
-  #     self.WINDOW.blit(background, (0, 0))
-  #     self.WINDOW.blit(mainMap, (mainMap_rect.x, mainMap_rect.y))
-  #     self.WINDOW.blit(pygame.transform.smoothscale(
-  #         pygame.transform.smoothscale(self.WINDOW, (160, 90)), SCREEN_SIZE), (0, 0))
-  #     self.WINDOW.blit(a, (0, 0))
-  #     self.WINDOW.blit(board, (0, 0))
-  #     SCREEN.blit(pygame.transform.scale(
-  #         self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
-  #     pygame.display.update()
+  # !!HOT!!: 업데이트 필요
+  def scoreBoard(self):
+    score_list = self.mainMap.get_score()
+    board = Menu.ScoreBoard(SCREEN_SIZE, score_list)
+    blur = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
+    blur.fill(pygame.Color(0, 0, 0, 60))
+    # threading.Thread(target=savingScore).start() // !!HOT!! 점수 데이터 생성 및 네트워크 추가
+    while True:
+      self.dt = clock.tick(FPS)
+      self.eventHandler()
+      if key[pygame.K_ESCAPE]:
+        key[pygame.K_ESCAPE] = False
+        return
+      for event in board.eventHandling(key):
+        return event
+      board.draw()
+      self.WINDOW.blit(background, (0, 0))
+      self.WINDOW.blit(
+          self.mainMap, (self.mainMap_rect.x, self.mainMap_rect.y))
+      self.WINDOW.blit(pygame.transform.smoothscale(
+          pygame.transform.smoothscale(self.WINDOW, (160, 90)), SCREEN_SIZE), (0, 0))
+      self.WINDOW.blit(blur, (0, 0))
+      self.WINDOW.blit(board, (0, 0))
+      SCREEN.blit(pygame.transform.scale(
+          self.WINDOW, (SCREEN.get_rect().width, SCREEN.get_rect().height)), (0, 0))
+      pygame.display.update()
 
   # def scoreHistory():
   #   page = ScoreHistory(SCREEN_SIZE, totalScore)

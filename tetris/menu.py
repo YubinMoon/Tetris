@@ -65,7 +65,7 @@ class PauseMenu(Menu):
 class ScoreBoard(Menu):
   def __init__(self, size: tuple, score: list):
     super().__init__(size)
-    self.score = score[-1]
+    self.score = score
     self.image = pygame.image.load(resource_path("src/board.png")).convert()
     self.rect = self.image.get_rect(center=(960, 410))
     self.initBTN()
