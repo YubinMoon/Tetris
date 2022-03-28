@@ -1,6 +1,15 @@
+import os
+import sys
 import pygame
+import tetris.constants as Constants
 
-from game import resource_path
+
+def resource_path(relative_path):  # 파일 절대경로 추적
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 class Menu(pygame.Surface):
@@ -25,10 +34,10 @@ class MainMenu(Menu):
     self.init()
 
   def init(self):
-    self.group.add(BTN("GAME START", GAMESTART))
-    self.group.add(BTN("CONTROL", CONTROL))
-    self.group.add(BTN("HISTORY", SCORE))
-    self.group.add(BTN("EXIT", EXIT))
+    self.group.add(BTN("GAME START", Constants.GAMESTART))
+    self.group.add(BTN("CONTROL", Constants.CONTROL))
+    self.group.add(BTN("HISTORY", Constants.SCORE))
+    self.group.add(BTN("EXIT", Constants.EXIT))
     num = -1.5
     for i in self.group:
       i.rect = i.image.get_rect(
@@ -43,9 +52,9 @@ class PauseMenu(Menu):
 
   def init(self):
     self.group = pygame.sprite.Group()
-    self.group.add(BTN("CONTINUE", CONTINUE))
-    self.group.add(BTN("RESTAET", RESTART))
-    self.group.add(BTN("EXIT", MAINMENU))
+    self.group.add(BTN("CONTINUE", Constants.CONTINUE))
+    self.group.add(BTN("RESTAET", Constants.RESTART))
+    self.group.add(BTN("EXIT", Constants.MAINMENU))
     num = -1
     for i in self.group:
       i.rect = i.image.get_rect(
@@ -63,9 +72,9 @@ class ScoreBoard(Menu):
 
   def initBTN(self):
     self.group = pygame.sprite.Group()
-    a = BTN("MAIN MENU", MAINMENU)
+    a = BTN("MAIN MENU", Constants.MAINMENU)
+    b = BTN("RESTART", Constants.RESTART)
     a.rect = a.image.get_rect(center=(self.size[0]/2, 850))
-    b = BTN("RESTART", RESTART)
     b.rect = b.image.get_rect(center=(self.size[0]/2, 980))
     self.group.add(a)
     self.group.add(b)
@@ -117,15 +126,15 @@ class ScoreHistory(Menu):
 
   def init(self):
     self.group = pygame.sprite.Group()
-    a = BTN("MAINMENU", MAINMENU)
+    a = BTN("MAINMENU", Constants.MAINMENU)
     a.rect = a.image.get_rect(center=(self.size[0]/2, self.get_height()-100))
     if self.page > 0:
-      l = BTN("<", LEFT)
+      l = BTN("<", "LEFT")
       l.rect = l.image.get_rect(
           center=(self.size[0]/2-600, self.get_height()-100))
       self.group.add(l)
     if self.page < self.Lpage and self.len % self.line != 0:
-      l = BTN(">", RIGHT)
+      l = BTN(">", "RIGHT")
       l.rect = l.image.get_rect(
           center=(self.size[0]/2+600, self.get_height()-100))
       self.group.add(l)
@@ -133,10 +142,10 @@ class ScoreHistory(Menu):
 
   def eventHandling(self, key):
       l = super().eventHandling(key)
-      if LEFT in l:
+      if "LEFT" in l:
         self.page -= 1
         self.init()
-      if RIGHT in l:
+      if "RIGHT" in l:
         self.page += 1
         self.init()
       return l
@@ -167,12 +176,13 @@ class ScoreHistory(Menu):
     day = str(score["day"]).zfill(2)
     hour = str(score["hour"]).zfill(2)
     minute = str(score["minute"]).zfill(2)
-    d = "%s/%s/%s" % (year,month,day)
-    t = "%s:%s" % (hour,minute)
+    d = "%s/%s/%s" % (year, month, day)
+    t = "%s:%s" % (hour, minute)
     d = getImage(d, (255, 255, 255), None, (400, 100))
     t = getImage(t, (255, 255, 255), None, (300, 100))
     S = getImage(str(score["score"]), (255, 255, 255), None, (200, 100))
-    line = getImage(str(score["ereaseBlock"]), (255, 255, 255), None, (200, 100))
+    line = getImage(str(score["ereaseBlock"]),
+                    (255, 255, 255), None, (200, 100))
     speed = getImage(str(score["speed"]), (255, 255, 255), None, (200, 100))
     a = 100
     surface.blit(d, (a, 0))
@@ -205,8 +215,8 @@ class ScoreHistory(Menu):
     # self.blit(self.makeLine(self.score[1]),(0,200))
     self.drawList()
     super().draw()
-    
-    
+
+
 class Control(Menu):
   def __init__(self, size):
     super().__init__(size)
@@ -214,10 +224,11 @@ class Control(Menu):
 
   def init(self):
     self.group = pygame.sprite.Group()
-    a = BTN("MAINMENU", MAINMENU)
-    a.rect = a.image.get_rect(center=(self.get_width()/2,self.get_height()-100))
+    a = BTN("MAINMENU", Constants.MAINMENU)
+    a.rect = a.image.get_rect(
+        center=(self.get_width()/2, self.get_height()-100))
     self.group.add(a)
-    self.consurface = pygame.Surface(self.size,pygame.SRCALPHA)
+    self.consurface = pygame.Surface(self.size, pygame.SRCALPHA)
     controlList = []
     controlList.append("RIGHT: move right")
     controlList.append("LEFT: move left")
@@ -229,12 +240,13 @@ class Control(Menu):
     controlList.append("M: bgm mute toggle")
     controlList.append("ESC: menu & quit")
     for n, i in enumerate(controlList):
-      img = getImage(i,(255,255,255),None,(self.get_width(),100),75)
-      self.consurface.blit(img,(0,n*90+70))
+      img = getImage(i, (255, 255, 255), None, (self.get_width(), 100), 75)
+      self.consurface.blit(img, (0, n*90+70))
+
   def draw(self):
-    self.blit(self.consurface,(0,0))
+    self.blit(self.consurface, (0, 0))
     super().draw()
-      
+
 
 class BTN(pygame.sprite.Sprite):
   def __init__(self, text: str, clicked):
@@ -268,14 +280,3 @@ def getImage(text, color, background, size: tuple = (500, 100), font_size=80):
   trect = textSurf.get_rect(center=(size[0]/2, size[1]/2))
   image.blit(textSurf, trect)
   return image
-
-
-GAMESTART = 200
-RESTART = 301
-CONTROL = 201
-CONTINUE = 202
-MAINMENU = 300
-EXIT = 203
-SCORE = 4303
-RIGHT = 21
-LEFT = 22
